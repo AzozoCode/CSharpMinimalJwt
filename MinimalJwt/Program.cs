@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MinimalJwt.Models;
 using MinimalJwt.Services;
 using System.Data;
@@ -5,7 +6,7 @@ using System.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IMovieService, MovieService>();
