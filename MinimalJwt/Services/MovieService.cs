@@ -40,7 +40,7 @@ namespace MinimalJwt.Services
             return movie;
         }
 
-        public Movie PutMovie(Movie newMovie)
+        public Movie Put(Movie newMovie)
         {
             var oldMovie = MovieRepository.Movies.FirstOrDefault(x=>x.Id == newMovie.Id);
             if(oldMovie is null) return null;

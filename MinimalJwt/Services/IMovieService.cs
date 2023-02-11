@@ -8,7 +8,7 @@ namespace MinimalJwt.Services
 
         public List<Movie> GetAllMovies();
 
-        public Movie PostMovie(Movie movie);
+        public Movie Put(Movie newMovie);
 
         public bool DeleteMovie(int id);  
         
