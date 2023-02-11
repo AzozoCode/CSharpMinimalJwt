@@ -7,9 +7,15 @@ namespace MinimalJwt.Services
     {
         public bool DeleteMovie(int id)
         {
-            var isDeleted = MovieRepository.Movies.Find(x => x.Id == id);
-            MovieRepository.Movies.Remove(isDeleted);   
-            return true;
+            var oldMovie = MovieRepository.Movies.Find(x => x.Id == id);
+
+            if (oldMovie != null)
+            {
+                MovieRepository.Movies.Remove(oldMovie);
+                return true;
+            }
+             
+            return false;
         }
 
         public List<Movie> GetAllMovies()
@@ -34,9 +40,18 @@ namespace MinimalJwt.Services
             return movie;
         }
 
-        public Movie PutMovie(Movie movie)
+        public Movie PutMovie(Movie newMovie)
         {
-            throw new NotImplementedException();
+            var oldMovie = MovieRepository.Movies.FirstOrDefault(x=>x.Id == newMovie.Id);
+            if(oldMovie is null) return null;
+
+                oldMovie.Title = newMovie.Title;
+                oldMovie.Description = newMovie.Description;
+                oldMovie.Rating = newMovie.Rating;
+
+            return newMovie;
+
+           
         }
     }
 }
