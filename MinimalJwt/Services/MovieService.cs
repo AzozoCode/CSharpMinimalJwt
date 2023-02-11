@@ -33,14 +33,14 @@ namespace MinimalJwt.Services
             return movie;
         }
 
-        public Movie PostMovie(Movie movie)
+        public Movie Create(Movie movie)
         {
             movie.Id = MovieRepository.Movies.Count + 1;
             MovieRepository.Movies.Add(movie);
             return movie;
         }
 
-        public Movie PutMovie(Movie newMovie)
+        public Movie Put(Movie newMovie)
         {
             var oldMovie = MovieRepository.Movies.FirstOrDefault(x=>x.Id == newMovie.Id);
             if(oldMovie is null) return null;
