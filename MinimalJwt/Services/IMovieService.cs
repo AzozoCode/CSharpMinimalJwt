@@ -12,6 +12,6 @@ namespace MinimalJwt.Services
 
         public bool DeleteMovie(int id);  
         
-        public Movie PutMovie(Movie movie);
+        public Movie Create(Movie movie);
     }
 }

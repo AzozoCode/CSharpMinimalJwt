@@ -33,7 +33,7 @@ namespace MinimalJwt.Services
             return movie;
         }
 
-        public Movie PostMovie(Movie movie)
+        public Movie Create(Movie movie)
         {
             movie.Id = MovieRepository.Movies.Count + 1;
             MovieRepository.Movies.Add(movie);
