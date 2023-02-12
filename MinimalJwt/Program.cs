@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using MinimalJwt.Models;
 using MinimalJwt.Services;
 using System.Data;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,8 +36,17 @@ builder.Services.AddSingleton<IUserService, UserService>();
 var app = builder.Build();
 
 app.UseSwagger();
+app.UseAuthorization();
+app.UseAuthentication();
+
+
 
 app.MapGet("/", () => "Hello World!");
+
+app.MapPost("/login", (UserLogin user,IUserService service) =>
+
+    Login(user,service)
+);
 
 
 app.MapPost("/create", 
@@ -49,6 +60,23 @@ app.MapPut("/put", (Movie newMovie, IMovieService service) => Update(newMovie, s
 
 app.MapDelete("/delete",(int id,IMovieService service)=>  Delete(id,service));
 
+
+IResult Login(UserLogin user,IUserService service)
+{
+    if(!string.IsNullOrEmpty(user.Username)&& !string.IsNullOrEmpty(user.Password))
+    {
+        var loggedInUser = service.Get(user);
+        if(loggedInUser is null) return Results.NotFound("User not found");
+
+        var claims = new[] { 
+            new Claim(ClaimTypes.NameIdentifier, loggedInUser.Username),
+            new Claim(ClaimTypes.Email,loggedInUser.EmailAddress),
+            new Claim(ClaimTypes.GivenName,loggedInUser.GivenName),
+            new Claim(ClaimTypes.Surname,loggedInUser.Surname), 
+            new Claim(ClaimTypes.Role,loggedInUser.Role)
+        };
+    }
+}
 
 IResult Create(Movie movie, IMovieService service)
 {
