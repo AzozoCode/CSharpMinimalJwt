@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using MinimalJwt.Models;
 using MinimalJwt.Services;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -75,6 +76,18 @@ IResult Login(UserLogin user,IUserService service)
             new Claim(ClaimTypes.Surname,loggedInUser.Surname), 
             new Claim(ClaimTypes.Role,loggedInUser.Role)
         };
+
+        var token = new JwtSecurityToken(
+            issuer: builder.Configuration["Jwt:Issuer"],
+            audience: builder.Configuration["Jwt:Audience"],
+            claims:claims,
+            expires:DateTime.UtcNow.AddDays(3),
+            notBefore:DateTime.UtcNow,
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Jwt:Key")),SecurityAlgorithms.HmacSha256)
+            );
+
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
 
