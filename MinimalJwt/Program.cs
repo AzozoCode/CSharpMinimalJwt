@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using MinimalJwt.Models;
@@ -44,22 +45,30 @@ app.UseAuthentication();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapPost("/login", (UserLogin user,IUserService service) =>
+
+app.MapPost("/login",
+    [AllowAnonymous]
+(UserLogin user,IUserService service) =>
 
     Login(user,service)
 );
 
 
-app.MapPost("/create", 
-    (Movie movie, IMovieService service) => Create(movie,service));
+app.MapPost("/create",
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+(Movie movie, IMovieService service) => Create(movie,service));
 
-app.MapGet("/get",(int id,IMovieService service)=> Get(id,service));
+app.MapGet("/get",
+[Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles ="Administrator,Standard")]    
+(int id,IMovieService service)=> Get(id,service));
 
 app.MapGet("/list", (IMovieService service) => List(service));
 
-app.MapPut("/put", (Movie newMovie, IMovieService service) => Update(newMovie, service));
+app.MapPut("/put",
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+(Movie newMovie, IMovieService service) => Update(newMovie, service));
 
-app.MapDelete("/delete",(int id,IMovieService service)=>  Delete(id,service));
+app.MapDelete("/delete",[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")] (int id,IMovieService service)=>  Delete(id,service));
 
 
 IResult Login(UserLogin user,IUserService service)
@@ -87,8 +96,12 @@ IResult Login(UserLogin user,IUserService service)
             );
 
 
+
+
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return Results.Ok( tokenString );
     }
+    return Results.BadRequest("Invalid Username and Password");
 }
 
 IResult Create(Movie movie, IMovieService service)
