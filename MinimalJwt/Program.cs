@@ -72,7 +72,8 @@ app.UseAuthentication();
 
 
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Hello World!")
+    .ExcludeFromDescription();
 
 
 app.MapPost("/login",
@@ -80,22 +81,30 @@ app.MapPost("/login",
 (UserLogin user,IUserService service) =>
 
     Login(user,service)
-);
+)
+    .Accepts<UserLogin>("application/json");
 
 
 app.MapPost("/create",
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-(Movie movie, IMovieService service) => Create(movie,service));
+(Movie movie, IMovieService service) => Create(movie,service))
+    .Accepts<Movie>("application/json")
+    .Produces<Movie>(statusCode:200,contentType:"application/json");
 
 app.MapGet("/get",
-[Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles ="Administrator,Standard")]    
-(int id,IMovieService service)=> Get(id,service));
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator,Standard")]
+(int id, IMovieService service) => Get(id, service))
+    .Produces<Movie>();
+    
 
-app.MapGet("/list", (IMovieService service) => List(service));
+app.MapGet("/list", (IMovieService service) => List(service)).Produces<List<Movie>>(statusCode:200,contentType:"application/json");
 
 app.MapPut("/put",
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-(Movie newMovie, IMovieService service) => Update(newMovie, service));
+(Movie newMovie, IMovieService service) => Update(newMovie, service))
+    .Accepts<Movie>("application/json")
+    .Produces(statusCode: 200, contentType: "application/json");
+    
 
 app.MapDelete("/delete",[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")] (int id,IMovieService service)=>  Delete(id,service));
 
@@ -121,7 +130,7 @@ IResult Login(UserLogin user,IUserService service)
             claims:claims,
             expires:DateTime.UtcNow.AddDays(3),
             notBefore:DateTime.UtcNow,
-            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Jwt:Key")),SecurityAlgorithms.HmacSha256)
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Jwt:Key")),SecurityAlgorithms.HmacSha256)
             );
 
 
